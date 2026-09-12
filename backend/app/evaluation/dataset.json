@@ -1,0 +1,20 @@
+[
+  {
+    "query": "What is the standard refund period for annual subscriptions?",
+    "ground_truth": "The standard refund period for annual subscriptions is 30 days from the purchase date.",
+    "expected_document": "company_policy.pdf",
+    "expected_citations": ["S1"]
+  },
+  {
+    "query": "How do I configure custom embeddings in the platform?",
+    "ground_truth": "Set EMBEDDING_MODEL and EMBEDDING_DEVICE environment variables in the configuration file.",
+    "expected_document": "docs_config.md",
+    "expected_citations": ["S1"]
+  },
+  {
+    "query": "Compare Plan A and Plan B refund policies after 15 days.",
+    "ground_truth": "Plan A allows full refunds up to 30 days, so at 15 days Plan A is fully refundable. Plan B only allows refunds within 7 days, so at 15 days Plan B is non-refundable.",
+    "expected_document": "terms_and_plans.docx",
+    "expected_citations": ["S1", "S2"]
+  }
+]
