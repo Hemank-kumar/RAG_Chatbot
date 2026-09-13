@@ -8,27 +8,46 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'sans-serif'],
+        display: ['var(--font-montserrat)', 'sans-serif'],
+      },
       colors: {
+        baunfire: {
+          bg: '#0d0d0d',
+          surface: '#141414',
+          card: '#161616',
+          border: '#262626',
+          borderHover: '#383838',
+          red: '#f84525',
+          redHover: '#e03819',
+          muted: '#6f6f6f',
+          textMuted: '#9c9c9c',
+        },
         brand: {
           50: '#f0f4ff',
           100: '#e0e9ff',
           200: '#c3d5ff',
           300: '#96b4ff',
           400: '#6487ff',
-          500: '#3b5bf6',
-          600: '#253ea8',
-          700: '#1d2f83',
-          800: '#1c296b',
-          900: '#1b2559',
-          950: '#0f1434',
+          500: '#f84525',
+          600: '#e03819',
+          700: '#c22c10',
+          800: '#9e220a',
+          900: '#7e1b07',
+          950: '#0d0d0d',
         },
         dark: {
-          bg: '#0b0f19',
-          card: '#111827',
-          border: '#1f2937',
-          muted: '#374151'
+          bg: '#0d0d0d',
+          card: '#161616',
+          border: '#262626',
+          muted: '#6f6f6f'
         }
       },
+      letterSpacing: {
+        widest: '.2em',
+        mega: '.35em',
+      }
     },
   },
   plugins: [],

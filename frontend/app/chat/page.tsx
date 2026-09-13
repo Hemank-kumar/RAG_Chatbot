@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Send, Plus, MessageSquare, Trash2, Bot, Sliders, ShieldCheck, Sparkles } from 'lucide-react';
+import { Send, Plus, MessageSquare, Trash2, Bot, Sparkles, Terminal } from 'lucide-react';
 import { Navbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { ChatMessage } from '@/components/chat/chat-message';
@@ -130,7 +130,6 @@ export default function ChatPage() {
     setIsGenerating(true);
     setSuggestedFollowups([]);
 
-    // Initialize progress tracker steps
     const initialSteps: ProgressStep[] = [
       { id: 'query_analysis', label: 'Analyzing question', status: 'pending' },
       { id: 'retrieval', label: 'Hybrid search (Vector + Keyword)', status: 'pending' },
@@ -141,7 +140,6 @@ export default function ChatPage() {
     ];
     setProgressSteps(initialSteps);
 
-    // Optimistically add user message
     const userMsg: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -151,7 +149,6 @@ export default function ChatPage() {
 
     setMessages((prev) => [...prev, userMsg]);
 
-    // Assistant placeholder
     const assistantMsgId = `asst-${Date.now()}`;
     let accumulatedContent = '';
     let citations: any[] = [];
@@ -238,7 +235,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#0d0d0d] text-white flex flex-col overflow-hidden font-sans">
       <Navbar
         user={user}
         knowledgeBases={knowledgeBases}
@@ -248,17 +245,17 @@ export default function ChatPage() {
 
       <div className="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full">
         {/* Conversations Sidebar */}
-        <aside className="w-72 bg-slate-950 border-r border-slate-800/80 hidden md:flex flex-col p-4 space-y-4">
+        <aside className="w-72 bg-[#0d0d0d] border-r border-[#262626] hidden md:flex flex-col p-4 space-y-4">
           <Button onClick={handleStartNewChat} className="w-full flex items-center justify-center gap-2">
-            <Plus className="w-4 h-4" /> New Chat
+            <Plus className="w-4 h-4" /> New Session
           </Button>
 
           <div className="flex-1 overflow-y-auto space-y-1 pr-1">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block px-2 mb-2">
-              Recent Conversations
+            <span className="text-[10px] font-mono font-bold text-[#6f6f6f] uppercase tracking-widest block px-2 mb-3">
+              RECENT SESSIONS
             </span>
             {conversations.length === 0 ? (
-              <div className="text-xs text-slate-500 px-2 py-4 text-center">No history yet</div>
+              <div className="text-xs font-mono text-[#6f6f6f] px-2 py-4 text-center">No past sessions</div>
             ) : (
               conversations.map((conv) => {
                 const isActive = currentConversation?.id === conv.id;
@@ -266,19 +263,19 @@ export default function ChatPage() {
                   <div
                     key={conv.id}
                     onClick={() => router.push(`/chat/${conv.id}`)}
-                    className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all group ${
+                    className={`flex items-center justify-between p-3 rounded-lg text-xs font-medium cursor-pointer transition-all group ${
                       isActive
-                        ? 'bg-blue-600/15 text-blue-300 border border-blue-500/30'
-                        : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                        ? 'bg-[#161616] text-[#f84525] border border-[#f84525]/40 font-bold'
+                        : 'text-[#9c9c9c] hover:bg-[#141414] hover:text-white'
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <MessageSquare className="w-3.5 h-3.5 shrink-0 text-blue-400" />
+                      <MessageSquare className="w-3.5 h-3.5 shrink-0 text-[#f84525]" />
                       <span className="truncate">{conv.title}</span>
                     </div>
                     <button
                       onClick={(e) => handleDeleteConversation(conv.id, e)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 text-[#6f6f6f] hover:text-rose-400 p-1 rounded hover:bg-[#202020] transition-opacity"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -290,13 +287,13 @@ export default function ChatPage() {
         </aside>
 
         {/* Main Chat Interface */}
-        <main className="flex-1 flex flex-col bg-slate-900/30 overflow-hidden relative">
+        <main className="flex-1 flex flex-col bg-[#121212] overflow-hidden relative">
           {/* Header Controls */}
-          <div className="p-4 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot className="w-5 h-5 text-blue-400" />
-              <span className="font-semibold text-sm text-white">
-                {currentConversation ? currentConversation.title : 'New RAG Session'}
+          <div className="p-4 border-b border-[#262626] bg-[#0d0d0d]/80 backdrop-blur-md flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-[#f84525]" />
+              <span className="font-display font-bold uppercase tracking-wider text-xs text-white">
+                {currentConversation ? currentConversation.title : 'SESSION // MULTI-AGENT SWARM'}
               </span>
             </div>
 
@@ -306,25 +303,33 @@ export default function ChatPage() {
           {/* Messages Scroll Area */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30">
+              <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
+                <div className="w-16 h-16 rounded-2xl bg-[#161616] border border-[#262626] flex items-center justify-center text-[#f84525] shadow-2xl">
                   <Sparkles className="w-8 h-8 animate-pulse" />
                 </div>
-                <h2 className="text-xl font-bold text-white tracking-tight">How can I help you today?</h2>
-                <p className="text-xs text-slate-400 max-w-md">
-                  Ask any question regarding your indexed documents. The multi-agent pipeline will analyze, search, rerank, and verify evidence-grounded answers.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full pt-4">
+                <div>
+                  <div className="section-tag justify-center mb-2">02 // MULTI-AGENT CHAT</div>
+                  <h2 className="text-2xl font-extrabold uppercase font-display text-white tracking-tight">
+                    INTELLIGENT KNOWLEDGE RETRIEVAL
+                  </h2>
+                  <p className="text-xs text-[#9c9c9c] max-w-md mx-auto mt-2 leading-relaxed">
+                    Ask any detailed question regarding your uploaded knowledge base. The Gemini multi-agent swarm will query vector indexes, rerank facts, and generate grounded answers.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full pt-2">
                   <button
                     onClick={() => handleSend('Summarize the main refund guidelines and eligibility criteria.')}
-                    className="p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-left text-xs text-slate-300 transition-all hover:scale-[1.02]"
+                    className="p-4 rounded-xl bg-[#161616] border border-[#262626] hover:border-[#f84525]/50 text-left text-xs text-[#9c9c9c] hover:text-white transition-all group"
                   >
+                    <span className="font-mono text-[10px] text-[#f84525] block mb-1">PROMPT 01 //</span>
                     "Summarize refund guidelines and eligibility criteria."
                   </button>
                   <button
                     onClick={() => handleSend('Compare Plan A and Plan B refund policy after 15 days.')}
-                    className="p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-left text-xs text-slate-300 transition-all hover:scale-[1.02]"
+                    className="p-4 rounded-xl bg-[#161616] border border-[#262626] hover:border-[#f84525]/50 text-left text-xs text-[#9c9c9c] hover:text-white transition-all group"
                   >
+                    <span className="font-mono text-[10px] text-[#f84525] block mb-1">PROMPT 02 //</span>
                     "Compare Plan A and Plan B refund policy after 15 days."
                   </button>
                 </div>
@@ -345,13 +350,13 @@ export default function ChatPage() {
           </div>
 
           {/* Input Box Bar */}
-          <div className="p-4 border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-lg">
+          <div className="p-4 border-t border-[#262626] bg-[#0d0d0d]/90 backdrop-blur-md">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend();
               }}
-              className="flex items-center gap-3 bg-slate-900 border border-slate-800 focus-within:border-blue-500 rounded-2xl p-2 shadow-2xl transition-colors"
+              className="flex items-center gap-3 bg-[#161616] border border-[#262626] focus-within:border-[#f84525] rounded-xl p-2 shadow-2xl transition-colors"
             >
               <textarea
                 rows={1}
@@ -363,8 +368,8 @@ export default function ChatPage() {
                     handleSend();
                   }
                 }}
-                placeholder="Ask questions about your documents (e.g. Compare policy rules...)..."
-                className="flex-1 bg-transparent px-3 py-2 text-sm text-white focus:outline-none resize-none max-h-32"
+                placeholder="Inquire about indexed documents (e.g. Compare policy rules...)..."
+                className="flex-1 bg-transparent px-3 py-2 text-sm text-white focus:outline-none resize-none max-h-32 font-sans"
               />
               <Button type="submit" size="md" disabled={!inputMessage.trim() || isGenerating} isLoading={isGenerating}>
                 <Send className="w-4 h-4" />

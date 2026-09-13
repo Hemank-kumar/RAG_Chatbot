@@ -29,29 +29,33 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ docu
   if (!document) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Inspect Chunks: ${document.filename}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={`INSPECT CHUNKS // ${document.filename}`}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-950 p-3 rounded-lg border border-slate-800">
-          <span>Type: <strong className="text-white font-mono">{document.file_type.toUpperCase()}</strong></span>
-          <span>Pages: <strong className="text-white">{document.page_count}</strong></span>
-          <span>Total Chunks: <strong className="text-blue-400 font-semibold">{document.chunk_count}</strong></span>
+        <div className="flex items-center justify-between text-xs font-mono text-[#6f6f6f] bg-[#161616] p-3 rounded-md border border-[#262626]">
+          <span>TYPE: <strong className="text-white">{document.file_type.toUpperCase()}</strong></span>
+          <span>PAGES: <strong className="text-white">{document.page_count}</strong></span>
+          <span>TOTAL CHUNKS: <strong className="text-[#f84525] font-bold">{document.chunk_count}</strong></span>
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8 text-slate-400 text-xs">Loading chunk vectors...</div>
+          <div className="text-center py-8 text-[#6f6f6f] font-mono text-xs uppercase tracking-widest">
+            Loading pgvector chunk embeddings...
+          </div>
         ) : chunks.length === 0 ? (
-          <div className="text-center py-8 text-slate-400 text-xs">No chunk embeddings found.</div>
+          <div className="text-center py-8 text-[#6f6f6f] font-mono text-xs uppercase tracking-widest">
+            No chunk embeddings found.
+          </div>
         ) : (
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
             {chunks.map((chunk) => (
-              <div key={chunk.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs space-y-2">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                  <span className="font-semibold text-blue-400 font-mono">Chunk #{chunk.chunk_index}</span>
-                  <span className="text-[11px] text-slate-400">
-                    Page {chunk.metadata_json?.page_number || 1} • {chunk.metadata_json?.section || 'General'}
+              <div key={chunk.id} className="bg-[#161616] border border-[#262626] rounded-md p-4 text-xs space-y-2 font-mono">
+                <div className="flex items-center justify-between border-b border-[#262626] pb-2">
+                  <span className="font-bold text-[#f84525]">CHUNK #{chunk.chunk_index}</span>
+                  <span className="text-[10px] text-[#6f6f6f]">
+                    PAGE {chunk.metadata_json?.page_number || 1} • {chunk.metadata_json?.section || 'GENERAL'}
                   </span>
                 </div>
-                <p className="text-slate-200 leading-relaxed font-mono text-[11px] whitespace-pre-wrap">
+                <p className="text-[#e0e0e0] leading-relaxed text-[11px] whitespace-pre-wrap font-mono">
                   {chunk.content}
                 </p>
               </div>

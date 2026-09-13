@@ -6,7 +6,7 @@ from app.utils.logger import logger
 from sqlalchemy import select
 
 
-async def test_end_to_end_synthesis():
+async def run_end_to_end_synthesis():
     await init_db()
     from app.db.session import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
@@ -67,4 +67,4 @@ async def test_end_to_end_synthesis():
 
 
 if __name__ == "__main__":
-    asyncio.run(test_end_to_end_synthesis())
+    asyncio.run(run_end_to_end_synthesis())

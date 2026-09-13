@@ -2,16 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-baunfire-bg: #0d0d0d;
+  --color-baunfire-surface: #141414;
+  --color-baunfire-card: #161616;
+  --color-baunfire-border: #262626;
+  --color-baunfire-red: #f84525;
+  --color-baunfire-muted: #6f6f6f;
+}
+
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased min-h-screen font-sans selection:bg-blue-500/30 selection:text-blue-200;
+    @apply bg-[#0d0d0d] text-white antialiased min-h-screen selection:bg-[#f84525]/30 selection:text-[#f84525];
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-white;
+  }
+}
+
+/* Baunfire Swipe Line Animation for Links & CTAs */
+.baunfire-swipe-link {
+  position: relative;
+  display: inline-block;
+}
+
+.baunfire-swipe-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1.5px;
+  bottom: -2px;
+  left: 0;
+  background-color: #f84525;
+  transform-origin: bottom right;
+  transition: transform 0.35s cubic-bezier(0.63, 0.03, 0.21, 1);
+}
+
+.baunfire-swipe-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Numbered Section Header Badge */
+.section-tag {
+  @apply font-mono text-[11px] uppercase tracking-[0.25em] text-[#f84525] flex items-center gap-2 font-bold;
+}
+
+.section-tag::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #f84525;
+  box-shadow: 0 0 10px rgba(248, 69, 37, 0.8);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -20,24 +73,37 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.25s ease-out forwards;
+  animation: fadeIn 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-/* Custom scrollbar */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+/* Custom Baunfire Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: #0d0d0d;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(51, 65, 85, 0.8);
-  border-radius: 9999px;
+  background: #262626;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(71, 85, 105, 1);
+  background: #f84525;
 }

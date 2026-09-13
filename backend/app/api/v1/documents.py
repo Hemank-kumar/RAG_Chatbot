@@ -27,6 +27,25 @@ async def upload_document(
     )
 
 
+@router.post("/upload-multiple", response_model=List[DocumentResponse], status_code=status.HTTP_201_CREATED)
+async def upload_multiple_documents(
+    files: List[UploadFile] = File(...),
+    knowledge_base_id: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    results = []
+    for file in files:
+        doc = await DocumentService.process_and_index_document(
+            db=db,
+            file=file,
+            knowledge_base_id=knowledge_base_id,
+            user=current_user
+        )
+        results.append(doc)
+    return results
+
+
 @router.get("", response_model=List[DocumentResponse])
 async def list_documents(
     knowledge_base_id: str,

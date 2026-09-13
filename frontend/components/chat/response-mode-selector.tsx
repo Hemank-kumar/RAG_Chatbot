@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sliders, Sparkles } from 'lucide-react';
+import { Sliders } from 'lucide-react';
 import { ResponseMode } from '@/types';
 
 interface ResponseModeSelectorProps {
@@ -19,16 +19,16 @@ const MODES: { value: ResponseMode; label: string; desc: string }[] = [
 
 export const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({ value, onChange }) => {
   return (
-    <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-xs">
-      <Sliders className="w-3.5 h-3.5 text-blue-400" />
-      <span className="text-slate-400 font-medium">Mode:</span>
+    <div className="flex items-center gap-2 bg-[#161616] border border-[#262626] px-3 py-1.5 rounded-md text-xs font-mono">
+      <Sliders className="w-3.5 h-3.5 text-[#f84525]" />
+      <span className="text-[#6f6f6f] uppercase tracking-wider text-[10px]">MODE:</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as ResponseMode)}
-        className="bg-transparent text-slate-100 font-semibold focus:outline-none cursor-pointer"
+        className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer text-xs"
       >
         {MODES.map((m) => (
-          <option key={m.value} value={m.value} className="bg-slate-900 text-white">
+          <option key={m.value} value={m.value} className="bg-[#161616] text-white">
             {m.label}
           </option>
         ))}

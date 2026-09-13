@@ -62,7 +62,7 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#0d0d0d] text-white flex flex-col font-sans">
       <Navbar
         user={user}
         knowledgeBases={knowledgeBases}
@@ -70,13 +70,18 @@ export default function DocumentsPage() {
         onSelectKb={(id) => setSelectedKbId(id)}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8 animate-fade-in">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Document Management</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Upload, chunk, embed into pgvector, re-index, and manage your knowledge base documents.
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-10 animate-fade-in">
+        <section aria-labelledby="documents-heading" className="space-y-2 border-b border-[#262626] pb-6">
+          <div className="section-tag">
+            01 // DOCUMENT STORAGE
+          </div>
+          <h1 id="documents-heading" className="text-3xl font-extrabold uppercase font-display text-white tracking-tight">
+            DOCUMENT MANAGEMENT
+          </h1>
+          <p className="text-xs text-[#9c9c9c] max-w-xl font-normal leading-relaxed">
+            Upload, chunk, embed into pgvector vector storage, re-index, and manage enterprise knowledge base assets.
           </p>
-        </div>
+        </section>
 
         {/* Uploader Section */}
         <DocumentUploader
@@ -85,14 +90,18 @@ export default function DocumentsPage() {
         />
 
         {/* Document Table */}
-        <div className="space-y-4">
-          <h2 className="text-base font-semibold text-white">Indexed Documents ({documents.length})</h2>
+        <section aria-labelledby="indexed-docs-heading" className="space-y-4">
+          <div className="flex items-center justify-between border-b border-[#262626] pb-3">
+            <h2 id="indexed-docs-heading" className="text-base font-display font-bold uppercase tracking-wider text-white">
+              INDEXED DOCUMENTS ({documents.length})
+            </h2>
+          </div>
           <DocumentList
             documents={documents}
             onRefresh={() => selectedKbId && fetchDocuments(selectedKbId)}
             onPreview={(doc) => setPreviewDoc(doc)}
           />
-        </div>
+        </section>
       </main>
 
       {/* Preview Modal */}

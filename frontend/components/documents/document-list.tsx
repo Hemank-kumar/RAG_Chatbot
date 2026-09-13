@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Trash2, RefreshCw, Eye, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
+import { FileText, Trash2, RefreshCw, Eye } from 'lucide-react';
 import { DocumentItem } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { formatBytes, formatDate } from '@/lib/utils';
+import { formatBytes } from '@/lib/utils';
 import { api } from '@/lib/api';
 
 interface DocumentListProps {
@@ -43,75 +43,81 @@ export const DocumentList: React.FC<DocumentListProps> = ({ documents, onRefresh
 
   if (documents.length === 0) {
     return (
-      <div className="text-center py-12 bg-slate-900/50 border border-slate-800 rounded-2xl">
-        <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-        <h4 className="text-sm font-semibold text-slate-300">No documents indexed yet</h4>
-        <p className="text-xs text-slate-500 mt-1">Upload PDF, DOCX, TXT, MD or HTML files to start querying.</p>
+      <div className="text-center py-14 bg-[#141414] border border-[#262626] rounded-xl p-6">
+        <FileText className="w-10 h-10 text-[#6f6f6f] mx-auto mb-3" />
+        <h4 className="text-xs font-display font-bold uppercase tracking-wider text-[#9c9c9c]">
+          NO DOCUMENTS INDEXED YET
+        </h4>
+        <p className="text-[11px] font-mono text-[#6f6f6f] mt-1 uppercase">
+          Upload PDF, DOCX, TXT, MD or HTML files to populate vector store.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden shadow-xl">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950/80 text-slate-400 font-medium border-b border-slate-800 uppercase tracking-wider">
+        <table className="w-full text-left text-xs text-[#e0e0e0]">
+          <thead className="bg-[#0d0d0d] text-[#6f6f6f] font-mono text-[10px] border-b border-[#262626] uppercase tracking-widest">
             <tr>
-              <th className="px-6 py-4">Document Name</th>
-              <th className="px-6 py-4">Type</th>
-              <th className="px-6 py-4">Size</th>
-              <th className="px-6 py-4">Pages</th>
-              <th className="px-6 py-4">Chunks</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4 text-right">Actions</th>
+              <th className="px-6 py-4">DOCUMENT NAME</th>
+              <th className="px-6 py-4">TYPE</th>
+              <th className="px-6 py-4">SIZE</th>
+              <th className="px-6 py-4">PAGES</th>
+              <th className="px-6 py-4">CHUNKS</th>
+              <th className="px-6 py-4">STATUS</th>
+              <th className="px-6 py-4 text-right">ACTIONS</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-[#262626]">
             {documents.map((doc) => (
-              <tr key={doc.id} className="hover:bg-slate-800/40 transition-colors">
+              <tr key={doc.id} className="hover:bg-[#161616] transition-colors">
                 <td className="px-6 py-4 font-semibold text-white flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-                    <FileText className="w-4 h-4" />
+                  <div className="w-7 h-7 rounded bg-[#161616] border border-[#262626] flex items-center justify-center text-[#f84525] shrink-0">
+                    <FileText className="w-3.5 h-3.5" />
                   </div>
-                  <span className="truncate max-w-xs" title={doc.filename}>{doc.filename}</span>
+                  <span className="truncate max-w-xs font-display uppercase tracking-wider text-xs" title={doc.filename}>
+                    {doc.filename}
+                  </span>
                 </td>
-                <td className="px-6 py-4 font-mono uppercase text-slate-400">{doc.file_type}</td>
-                <td className="px-6 py-4">{formatBytes(doc.file_size)}</td>
-                <td className="px-6 py-4">{doc.page_count}</td>
-                <td className="px-6 py-4 font-semibold text-blue-400">{doc.chunk_count}</td>
+                <td className="px-6 py-4 font-mono uppercase text-[#6f6f6f] text-[11px]">{doc.file_type}</td>
+                <td className="px-6 py-4 font-mono text-[11px]">{formatBytes(doc.file_size)}</td>
+                <td className="px-6 py-4 font-mono text-[11px]">{doc.page_count}</td>
+                <td className="px-6 py-4 font-mono font-bold text-[#f84525] text-[11px]">{doc.chunk_count}</td>
                 <td className="px-6 py-4">
                   {doc.status === 'indexed' ? (
-                    <Badge variant="success">Indexed</Badge>
+                    <Badge variant="flame">INDEXED</Badge>
                   ) : doc.status === 'processing' ? (
-                    <Badge variant="info">Processing</Badge>
+                    <Badge variant="warning">PROCESSING</Badge>
                   ) : (
-                    <Badge variant="error">Error</Badge>
+                    <Badge variant="error">ERROR</Badge>
                   )}
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1">
                     <button
                       onClick={() => onPreview(doc)}
-                      className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                      title="Inspect chunks"
+                      className="p-1.5 rounded text-[#6f6f6f] hover:text-white hover:bg-[#202020] transition-colors"
+                      title="Inspect vector chunks"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleReindex(doc.id)}
                       disabled={loadingId === doc.id}
-                      className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition-colors"
+                      className="p-1.5 rounded text-[#6f6f6f] hover:text-[#f84525] hover:bg-[#202020] transition-colors"
                       title="Re-index document"
                     >
-                      <RefreshCw className={`w-4 h-4 ${loadingId === doc.id ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`w-3.5 h-3.5 ${loadingId === doc.id ? 'animate-spin' : ''}`} />
                     </button>
                     <button
                       onClick={() => handleDelete(doc.id)}
                       disabled={loadingId === doc.id}
-                      className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                      className="p-1.5 rounded text-[#6f6f6f] hover:text-rose-400 hover:bg-[#202020] transition-colors"
                       title="Delete document"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </td>
