@@ -13,8 +13,11 @@ class FollowUpAgent:
         """
         Generates 2-4 context-grounded follow-up suggestions.
         """
-        if not state.final_answer or "couldn't find enough" in state.final_answer:
-            state.follow_up_questions = []
+        final_lower = (state.final_answer or "").lower()
+        if not state.final_answer or "couldn't find" in final_lower or "error" in final_lower or "does not contain" in final_lower or "api key" in final_lower:
+            # Preserve consent follow-up choices if already set by AnswerAgent
+            if not state.follow_up_questions:
+                state.follow_up_questions = []
             return state
 
         logger.info("[FollowUpAgent] Generating suggested follow-up questions...")

@@ -9,6 +9,7 @@ from app.db.models import Document, DocumentChunk, KnowledgeBase, User
 from app.rag.loaders import DocumentLoader
 from app.rag.chunking import StructureAwareChunker
 from app.rag.embeddings import get_embedding_provider
+from app.services.storage_service import StorageService
 from app.utils.config import settings
 from app.utils.logger import logger
 
@@ -42,24 +43,33 @@ class DocumentService:
         # Save file to disk
         kb_dir = os.path.join(settings.UPLOAD_DIR, knowledge_base_id)
         os.makedirs(kb_dir, exist_ok=True)
-        file_path = os.path.join(kb_dir, file.filename)
+        local_file_path = os.path.join(kb_dir, file.filename)
 
-        with open(file_path, "wb") as buffer:
+        with open(local_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        file_size = os.path.getsize(file_path)
+        file_size = os.path.getsize(local_file_path)
         if file_size > settings.MAX_FILE_SIZE_MB * 1024 * 1024:
-            os.remove(file_path)
+            os.remove(local_file_path)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"File exceeds maximum allowed size of {settings.MAX_FILE_SIZE_MB}MB."
             )
 
+        # Upload file to Supabase Cloud Storage
+        destination_path = f"{knowledge_base_id}/{file.filename}"
+        supabase_url = await StorageService.upload_file_to_supabase(
+            local_file_path=local_file_path,
+            destination_path=destination_path,
+            content_type=file.content_type or "application/octet-stream"
+        )
+        stored_file_path = supabase_url if supabase_url else local_file_path
+
         # Create Document record
         document = Document(
             filename=file.filename,
             file_type=ext.lstrip("."),
-            file_path=file_path,
+            file_path=stored_file_path,
             file_size=file_size,
             status="processing",
             knowledge_base_id=knowledge_base_id,
@@ -71,7 +81,7 @@ class DocumentService:
 
         try:
             # 1. Load & Extract Pages/Sections
-            pages = DocumentLoader.load_document(file_path, file.filename)
+            pages = DocumentLoader.load_document(local_file_path, file.filename)
             document.page_count = len(pages)
 
             # 2. Structure-Aware Chunking

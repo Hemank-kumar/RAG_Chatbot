@@ -67,6 +67,17 @@ class DeepSeekProvider(LLMProvider):
         try:
             async with httpx.AsyncClient(timeout=60.0) as client:
                 async with client.stream("POST", self.base_url, headers=headers, json=payload) as res:
+                    if res.status_code != 200:
+                        err_body = await res.aread()
+                        raw_err = err_body.decode('utf-8', errors='ignore')
+                        logger.error(f"[DeepSeek API Error {res.status_code}]: {raw_err}")
+                        try:
+                            err_json = json.loads(raw_err)
+                            detail = err_json.get("message") or raw_err
+                        except Exception:
+                            detail = raw_err
+                        yield f"DeepSeek API Error ({res.status_code}): {detail}"
+                        return
                     async for line in res.aiter_lines():
                         if line.startswith("data: "):
                             data_str = line.replace("data: ", "").strip()

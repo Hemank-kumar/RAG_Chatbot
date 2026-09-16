@@ -107,7 +107,16 @@ export const api = {
 
   // Chat SSE Streaming helper
   streamChat: async (
-    payload: { message: string; knowledge_base_id: string; conversation_id?: string; response_mode?: string },
+    payload: {
+      message: string;
+      knowledge_base_id: string;
+      conversation_id?: string;
+      response_mode?: string;
+      provider_name?: string;
+      model_name?: string;
+      custom_api_key?: string;
+      allow_web_search?: boolean;
+    },
     onEvent: (event: any) => void,
     onError: (err: any) => void
   ) => {

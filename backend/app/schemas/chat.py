@@ -54,4 +54,8 @@ class ChatRequest(BaseModel):
     knowledge_base_id: str
     conversation_id: Optional[str] = None
     response_mode: str = "Detailed"  # Brief, Detailed, Technical, Beginner, Explain with example
+    provider_name: Optional[str] = "gemini"
+    model_name: Optional[str] = "gemini-2.0-flash"
+    custom_api_key: Optional[str] = None
     stream: bool = True
+    allow_web_search: Optional[bool] = False

@@ -57,6 +57,28 @@ EXAMPLE MODE:
 {example_mode}
 """
 
+WEB_SEARCH_RAG_PROMPT = """You are an AI assistant retrieving answer context from external web search sources.
+
+MANDATORY FIRST LINE NOTICE:
+You MUST start your response with this EXACT header disclaimer on line 1:
+`> ⚠️ **External Source Notice**: This information does not exist in the RAG Knowledge Base and was fetched from external web sources.`
+
+Followed by your synthesized answer answering the USER QUESTION based on the external web search results.
+
+FORMATTING RULES:
+1. Provide a direct, well-structured answer with markdown headings and bullet points.
+2. Include a practical example section: `#### 💡 Practical Example`.
+3. At the very end of your response, list the external web sources explicitly:
+   `**External Web Sources:**`
+   - [Source Title / Domain](URL)
+
+USER QUESTION:
+{question}
+
+WEB SEARCH CONTEXT:
+{web_context}
+"""
+
 
 QUERY_ANALYSIS_PROMPT = """Analyze the following user query for a RAG system.
 Determine:

@@ -24,6 +24,9 @@ else:
         echo=False,
         future=True,
         pool_pre_ping=True,
+        pool_size=settings.DB_POOL_SIZE,
+        max_overflow=settings.DB_MAX_OVERFLOW,
+        pool_recycle=settings.DB_POOL_RECYCLE,
     )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -50,14 +53,29 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db():
     global engine, AsyncSessionLocal, IS_SQLITE
+    from app.db import models  # Ensure all SQLAlchemy models are registered in Base.metadata
     if not IS_SQLITE:
         try:
             async with engine.begin() as conn:
                 from sqlalchemy import text
                 await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
                 await conn.run_sync(Base.metadata.create_all)
-                logger.info("Successfully connected to PostgreSQL + pgvector.")
-                return
+            
+            # Attempt HNSW index creation in separate transaction so failure does not abort table creation
+            try:
+                async with engine.begin() as conn:
+                    from sqlalchemy import text
+                    await conn.execute(text(
+                        "CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding_hnsw "
+                        "ON document_chunks USING hnsw (embedding vector_cosine_ops) "
+                        "WITH (m = 16, ef_construction = 64);"
+                    ))
+                    logger.info("Successfully ensured HNSW vector index on document_chunks.")
+            except Exception as idx_err:
+                logger.warning(f"Could not build HNSW index (pgvector version or embedding column state): {idx_err}")
+
+            logger.info("Successfully connected to PostgreSQL + pgvector.")
+            return
         except Exception as e:
             logger.warning(f"PostgreSQL connection failed ({e}). Falling back to local SQLite database (rag_db.sqlite)...")
             IS_SQLITE = True

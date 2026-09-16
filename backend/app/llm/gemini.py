@@ -14,8 +14,9 @@ class GeminiProvider(LLMProvider):
         self._init_client()
 
     def _init_client(self):
-        if not self.api_key:
+        if not self.api_key or self.api_key.startswith("YOUR_") or "API_KEY_HERE" in self.api_key or len(self.api_key) < 10:
             logger.warning("GEMINI_API_KEY not configured. GeminiProvider will operate in compiled synthesis fallback mode.")
+            self._client = None
             return
 
         try:

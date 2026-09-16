@@ -47,9 +47,26 @@ class Settings(BaseSettings):
     TOP_K_RERANK: int = 5
     MAX_VERIFICATION_RETRIES: int = 2
 
-    # Storage Settings
+    # Redis Caching & Rate Limiting
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: Optional[str] = None
+    REDIS_DB: int = 0
+    ENABLE_REDIS_CACHE: bool = True
+    CACHE_TTL_SECONDS: int = 3600  # 1 hour
+    RATE_LIMIT_PER_MINUTE: int = 60
+
+    # Production Database Connection Pool Settings
+    DB_POOL_SIZE: int = 20
+    DB_MAX_OVERFLOW: int = 40
+    DB_POOL_RECYCLE: int = 3600
+
+    # Storage Settings (Local & Supabase Cloud Storage)
     UPLOAD_DIR: str = os.path.join(os.getcwd(), "data", "uploads")
     MAX_FILE_SIZE_MB: int = 25
+    SUPABASE_URL: Optional[str] = None
+    SUPABASE_SERVICE_KEY: Optional[str] = None
+    STORAGE_BUCKET: str = "rag-documents"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -59,9 +76,16 @@ class Settings(BaseSettings):
 
     def get_database_url(self) -> str:
         if self.DATABASE_URL:
-            if self.DATABASE_URL.startswith("postgresql://"):
-                return self.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
-            return self.DATABASE_URL
+            url = self.DATABASE_URL
+            if url.startswith("postgresql://"):
+                url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            # Sanitize libpq query params for asyncpg compatibility
+            if "?" in url:
+                base_url, query_part = url.split("?", 1)
+                query_part = query_part.replace("sslmode=require", "ssl=require").replace("sslmode=prefer", "ssl=prefer").replace("sslmode=disable", "ssl=disable")
+                params = [p for p in query_part.split("&") if p and not any(p.startswith(unsupported) for unsupported in ["channel_binding=", "gssencmode=", "target_session_attrs=", "options="])]
+                url = f"{base_url}?{'&'.join(params)}" if params else base_url
+            return url
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
 

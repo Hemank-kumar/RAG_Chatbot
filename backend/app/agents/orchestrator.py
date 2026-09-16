@@ -17,9 +17,20 @@ from app.utils.logger import logger
 
 
 class AgentOrchestrator:
-    def __init__(self, db: AsyncSession, llm: Optional[LLMProvider] = None, provider_name: Optional[str] = None, model_name: Optional[str] = None):
+    def __init__(
+        self,
+        db: AsyncSession,
+        llm: Optional[LLMProvider] = None,
+        provider_name: Optional[str] = None,
+        model_name: Optional[str] = None,
+        custom_api_key: Optional[str] = None
+    ):
         self.db = db
-        self.llm = llm or get_llm_provider(provider_name=provider_name, model_name=model_name)
+        self.llm = llm or get_llm_provider(
+            provider_name=provider_name,
+            model_name=model_name,
+            api_key=custom_api_key
+        )
 
         self.query_agent = QueryAgent(self.llm)
         self.decomposition_agent = DecompositionAgent(self.llm)
@@ -35,13 +46,34 @@ class AgentOrchestrator:
         query: str,
         knowledge_base_id: str,
         response_mode: str = "Detailed",
+        provider_name: Optional[str] = "gemini",
+        model_name: Optional[str] = "gemini-2.0-flash",
+        custom_api_key: Optional[str] = None,
         history: str = "",
+        allow_web_search: bool = False,
         progress_callback: Optional[Callable[[str, str], Any]] = None
     ) -> AgentState:
         """
         Executes non-streaming end-to-end multi-agent orchestration pipeline.
         """
-        state = AgentState(user_query=query, response_mode=response_mode, history=history)
+        # If custom model or key was passed per request, re-initialize provider if needed
+        if provider_name or model_name or custom_api_key:
+            self.llm = get_llm_provider(provider_name=provider_name, model_name=model_name, api_key=custom_api_key)
+            self.query_agent = QueryAgent(self.llm)
+            self.decomposition_agent = DecompositionAgent(self.llm)
+            self.answer_agent = AnswerAgent(self.llm)
+            self.verification_agent = VerificationAgent(self.llm)
+            self.followup_agent = FollowUpAgent(self.llm)
+
+        state = AgentState(
+            user_query=query,
+            response_mode=response_mode,
+            provider_name=provider_name,
+            model_name=model_name,
+            custom_api_key=custom_api_key,
+            history=history,
+            allow_web_search=allow_web_search
+        )
 
         # 1. Query Analysis
         if progress_callback:
@@ -93,15 +125,32 @@ class AgentOrchestrator:
         query: str,
         knowledge_base_id: str,
         response_mode: str = "Detailed",
-        history: str = ""
+        provider_name: Optional[str] = "gemini",
+        model_name: Optional[str] = "gemini-2.0-flash",
+        custom_api_key: Optional[str] = None,
+        history: str = "",
+        allow_web_search: bool = False
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Executes streaming multi-agent pipeline yielding SSE structured dictionary events:
-        - {"type": "progress", "step": "...", "message": "..."}
-        - {"type": "token", "content": "..."}
-        - {"type": "metadata", "citations": [...], "follow_ups": [...], "trace": [...]}
         """
-        state = AgentState(user_query=query, response_mode=response_mode, history=history)
+        if provider_name or model_name or custom_api_key:
+            self.llm = get_llm_provider(provider_name=provider_name, model_name=model_name, api_key=custom_api_key)
+            self.query_agent = QueryAgent(self.llm)
+            self.decomposition_agent = DecompositionAgent(self.llm)
+            self.answer_agent = AnswerAgent(self.llm)
+            self.verification_agent = VerificationAgent(self.llm)
+            self.followup_agent = FollowUpAgent(self.llm)
+
+        state = AgentState(
+            user_query=query,
+            response_mode=response_mode,
+            provider_name=provider_name,
+            model_name=model_name,
+            custom_api_key=custom_api_key,
+            history=history,
+            allow_web_search=allow_web_search
+        )
 
         # Step 1: Query Analysis
         yield {"type": "progress", "step": "query_analysis", "message": "Analyzing question..."}
@@ -133,13 +182,12 @@ class AgentOrchestrator:
         async for token in self.answer_agent.execute_stream(state):
             yield {"type": "token", "content": token}
 
-        # Step 7: Verification
-        yield {"type": "progress", "step": "verification", "message": "Verifying answer correctness..."}
-        state = await self.verification_agent.execute(state)
-
-        # Step 8: Follow-up questions
-        yield {"type": "progress", "step": "followup", "message": "Preparing follow-up questions..."}
-        state = await self.followup_agent.execute(state)
+        # Step 7 & 8: Concurrent Verification & Follow-up generation for high speed completion
+        yield {"type": "progress", "step": "verification", "message": "Verifying answer & generating follow-ups..."}
+        await asyncio.gather(
+            self.verification_agent.execute(state),
+            self.followup_agent.execute(state)
+        )
 
         # Final metadata event
         yield {

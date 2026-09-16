@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Folder, FileText, Settings, LogOut, LayoutDashboard, MessageSquare, Menu, X } from 'lucide-react';
-import { removeAuthToken } from '@/lib/api';
+import { Folder, FileText, LayoutDashboard, MessageSquare, Menu, X, Sun, Moon } from 'lucide-react';
 
 interface NavbarProps {
   user?: any;
@@ -17,17 +16,34 @@ export const Navbar: React.FC<NavbarProps> = ({ user, knowledgeBases = [], selec
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
-  const handleLogout = () => {
-    removeAuthToken();
-    router.push('/login');
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('app_theme') as 'dark' | 'light' | null;
+    if (storedTheme === 'light') {
+      setTheme('light');
+      document.documentElement.classList.add('light');
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('app_theme', nextTheme);
+    if (nextTheme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
   };
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, number: '01' },
     { name: 'Chat', href: '/chat', icon: MessageSquare, number: '02' },
     { name: 'Documents', href: '/documents', icon: FileText, number: '03' },
-    { name: 'Settings', href: '/settings', icon: Settings, number: '04' },
   ];
 
   return (
@@ -69,8 +85,8 @@ export const Navbar: React.FC<NavbarProps> = ({ user, knowledgeBases = [], selec
           )}
         </div>
 
-        {/* Right Section: Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-7 lg:gap-8">
+        {/* Right Section: Desktop Navigation Links + Theme Switcher */}
+        <nav className="hidden md:flex items-center gap-6 lg:gap-7">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -87,14 +103,14 @@ export const Navbar: React.FC<NavbarProps> = ({ user, knowledgeBases = [], selec
             );
           })}
 
-          {/* Logout Action Button */}
+          {/* Theme Switcher Button */}
           <button
-            onClick={handleLogout}
-            title="Sign out"
-            className="flex items-center gap-2 text-xs font-display uppercase tracking-widest text-[#6f6f6f] hover:text-[#f84525] transition-colors border-l border-[#262626] pl-6 py-2"
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-[#161616] border border-[#262626] hover:border-[#f84525] text-[#9c9c9c] hover:text-white transition-all ml-2"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`}
           >
-            <LogOut className="w-3.5 h-3.5 shrink-0" />
-            <span>Logout</span>
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
           </button>
         </nav>
 
@@ -144,17 +160,6 @@ export const Navbar: React.FC<NavbarProps> = ({ user, knowledgeBases = [], selec
               </Link>
             );
           })}
-
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              handleLogout();
-            }}
-            className="w-full flex items-center justify-between py-3 text-sm font-display uppercase tracking-widest text-[#f84525] pt-4"
-          >
-            <span>Logout</span>
-            <LogOut className="w-4 h-4" />
-          </button>
         </div>
       )}
     </header>

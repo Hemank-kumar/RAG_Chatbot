@@ -8,8 +8,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
-import { api, getAuthToken } from '@/lib/api';
+import { api, getAuthToken, removeAuthToken } from '@/lib/api';
 import { Workspace, KnowledgeBase } from '@/types';
+
+import { ThreeDModel } from '@/components/ui/three-model';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -51,7 +53,9 @@ export default function DashboardPage() {
         }
       }
     } catch (err) {
-      console.error(err);
+      console.error('Authentication/initialization error:', err);
+      removeAuthToken();
+      router.push('/login');
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +86,7 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center text-[#9c9c9c] font-mono text-xs uppercase tracking-widest">
+      <div className="min-h-screen bg-[#0b0c10] flex items-center justify-center text-[#9c9c9c] font-mono text-xs uppercase tracking-widest">
         <span className="w-2 h-2 bg-[#f84525] rounded-full animate-ping mr-3" />
         Loading AgentRAG Workspace...
       </div>
@@ -90,7 +94,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0b0c10] text-white flex flex-col font-sans">
       <Navbar
         user={user}
         knowledgeBases={knowledgeBases}
@@ -99,36 +103,51 @@ export default function DashboardPage() {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-12 animate-fade-in">
-        {/* Baunfire Agency Hero Section */}
-        <section aria-labelledby="overview-heading" className="bg-[#141414] border border-[#262626] p-8 md:p-12 rounded-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#f84525]/5 rounded-full blur-3xl pointer-events-none" />
+        {/* Davide Cattaneo Inspired 3D Interactive Hero Section */}
+        <section aria-labelledby="overview-heading" className="bg-[#12141c]/70 backdrop-blur-xl border border-[#232838] p-8 md:p-12 rounded-3xl relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#f84525]/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#00f0ff]/5 rounded-full blur-[100px] pointer-events-none" />
 
-          <div className="relative z-10 space-y-6">
-            <div className="section-tag">
-              01 // WORKSPACE OVERVIEW
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Text & CTAs */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="section-tag font-mono text-xs tracking-[0.25em] text-[#f84525] uppercase font-extrabold flex items-center gap-2">
+                01 // CREATIVE DATA & MULTI-AGENT ENGINE
+              </div>
+
+              <div className="space-y-3">
+                <h1 id="overview-heading" className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight text-white font-display leading-tight">
+                  WELCOME, <span className="text-[#f84525]">{user?.full_name || user?.email?.split('@')[0]}</span>
+                </h1>
+                <p className="text-sm md:text-base text-[#9c9c9c] font-normal leading-relaxed max-w-xl">
+                  Transforming complex document repositories into evidence-grounded AI intelligence. Powered by 3D WebGL vector space visualization, Hugging Face embeddings, pgvector HNSW indexing, and multi-agent synthesis.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <Button onClick={() => setIsKbModalOpen(true)} size="lg" className="flex items-center gap-2 shadow-[0_4px_20px_rgba(248,69,37,0.3)]">
+                  <Plus className="w-4 h-4" /> New Knowledge Base
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => router.push('/chat')}
+                  className="flex items-center gap-2 border-[#262626] hover:border-[#f84525]"
+                >
+                  <MessageSquare className="w-4 h-4 text-[#f84525]" /> Launch Chat Engine
+                </Button>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <h1 id="overview-heading" className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight text-white font-display">
-                WELCOME, <span className="text-[#f84525]">{user?.full_name || user?.email?.split('@')[0]}</span>
-              </h1>
-              <p className="text-sm md:text-base text-[#9c9c9c] max-w-2xl font-normal leading-relaxed">
-                Enterprise Multi-Agent RAG Orchestration Engine. Process documents with Hugging Face semantic embeddings, pgvector HNSW indexing, and evidence-grounded Gemini AI intelligence.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Button onClick={() => setIsKbModalOpen(true)} size="lg" className="flex items-center gap-2">
-                <Plus className="w-4 h-4" /> New Knowledge Base
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => router.push('/chat')}
-                className="flex items-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4 text-[#f84525]" /> Launch Chat Engine
-              </Button>
+            {/* Interactive 3D Model Sphere */}
+            <div className="lg:col-span-5 relative flex items-center justify-center">
+              <div className="w-full bg-[#08090d]/80 border border-[#232838] rounded-2xl p-4 shadow-2xl relative">
+                <div className="text-[10px] font-mono text-[#f84525] uppercase tracking-widest font-bold mb-2 flex items-center justify-between border-b border-[#1c2130] pb-2">
+                  <span>02 // 3D VECTOR SPACE CORE</span>
+                  <span className="animate-pulse">● LIVE WEBGL</span>
+                </div>
+                <ThreeDModel height="h-64 sm:h-72" />
+              </div>
             </div>
           </div>
         </section>

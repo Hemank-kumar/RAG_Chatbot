@@ -19,11 +19,12 @@ class VerificationAgent:
             state.confidence = 0.0
             return state
 
-        # If fallback answer due to missing or low-relevance context, skip audit
-        if "couldn't find" in state.draft_answer.lower():
+        # If fallback answer due to missing/low-relevance context or API error, skip audit
+        draft_lower = state.draft_answer.lower()
+        if "couldn't find" in draft_lower or "error" in draft_lower or "does not contain" in draft_lower or "api key" in draft_lower:
             state.final_answer = state.draft_answer
             state.confidence = 0.0
-            state.verification_result = {"is_valid": True, "note": "Low confidence fallback"}
+            state.verification_result = {"is_valid": True, "note": "Fallback or API Error response"}
             return state
 
         logger.info("[VerificationAgent] Auditing draft answer for grounding & citations...")

@@ -82,14 +82,19 @@ async def get_current_user(
             detail="Could not validate credentials.",
         )
 
-    stmt = select(User).where(User.id == user_id)
-    res = await db.execute(stmt)
-    user = res.scalar_one_or_none()
+    try:
+        stmt = select(User).where(User.id == user_id)
+        res = await db.execute(stmt)
+        user = res.scalar_one_or_none()
+    except Exception as e:
+        logger.warning(f"Database lookup error for user token ({user_id}): {e}")
+        user = None
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found."
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expired or user not found. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     return user

@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar';
 import { DocumentUploader } from '@/components/documents/document-uploader';
 import { DocumentList } from '@/components/documents/document-list';
 import { DocumentPreviewModal } from '@/components/documents/document-preview-modal';
-import { api, getAuthToken } from '@/lib/api';
+import { api, getAuthToken, removeAuthToken } from '@/lib/api';
 import { KnowledgeBase, DocumentItem } from '@/types';
 
 export default function DocumentsPage() {
@@ -46,7 +46,9 @@ export default function DocumentsPage() {
         }
       }
     } catch (err) {
-      console.error(err);
+      console.error('Authentication/initialization error:', err);
+      removeAuthToken();
+      router.push('/login');
     } finally {
       setIsLoading(false);
     }
