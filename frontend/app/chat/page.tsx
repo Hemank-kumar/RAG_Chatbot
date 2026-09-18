@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Send, Plus, MessageSquare, Trash2, Bot, Sparkles, Folder, FileText, ChevronRight, AlertCircle, CheckCircle2, AlertTriangle, X, Cpu, Settings, LogOut } from 'lucide-react';
+import { Send, Plus, MessageSquare, Trash2, Bot, Sparkles, Folder, FileText, ChevronRight, AlertCircle, CheckCircle2, AlertTriangle, X, Cpu, Settings } from 'lucide-react';
 import { Navbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -555,39 +555,6 @@ export default function ChatPage() {
             )}
           </div>
 
-          {/* User Profile Card in Left Corner */}
-          <div className="pt-3 border-t border-[#262626] mt-auto">
-            <div className="bg-[#141414] border border-[#262626] rounded-xl p-3 flex items-center justify-between gap-2 shadow-lg">
-              <div className="flex items-center gap-2.5 truncate">
-                <div className="w-8 h-8 rounded-xl bg-[#f84525]/20 text-[#f84525] border border-[#f84525]/40 flex items-center justify-center font-mono text-xs font-bold shrink-0">
-                  {user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : user?.email ? user.email.substring(0, 2).toUpperCase() : 'US'}
-                </div>
-                <div className="truncate text-left space-y-0.5">
-                  <span className="block text-xs font-bold text-white truncate">{user?.full_name || 'User Profile'}</span>
-                  <span className="block text-[10px] font-mono text-[#6f6f6f] truncate">{user?.email || 'user@rag.ai'}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  onClick={() => router.push('/settings')}
-                  className="p-1.5 text-[#6f6f6f] hover:text-[#f84525] hover:bg-[#202020] rounded transition-colors"
-                  title="Settings"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => {
-                    removeAuthToken();
-                    router.push('/login');
-                  }}
-                  className="p-1.5 text-[#6f6f6f] hover:text-rose-400 hover:bg-[#202020] rounded transition-colors"
-                  title="Sign Out"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
         </aside>
 
         {/* Main Chat Interface */}
