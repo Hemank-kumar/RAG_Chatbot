@@ -1,6 +1,6 @@
 import { User, Workspace, KnowledgeBase, DocumentItem, DocumentChunk, Conversation, Message } from '@/types';
 
-const API_BASE = process.env.NEXT_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_API_URL;
 
 export function getAuthToken(): string | null {
   if (typeof window !== 'undefined') {
