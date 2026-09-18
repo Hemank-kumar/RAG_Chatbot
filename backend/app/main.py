@@ -133,6 +133,16 @@ async def global_exception_handler(
 # ============================================================
 
 @app.get(
+    "/ping",
+    response_model=bool,
+    tags=["Health"],
+)
+async def ping() -> bool:
+    """Return ``true`` when this application process is able to serve requests."""
+    return True
+
+
+@app.get(
     f"{settings.API_V1_STR}/health",
     tags=["Health"],
 )
