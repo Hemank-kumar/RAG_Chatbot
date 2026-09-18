@@ -415,7 +415,7 @@ docker compose -f docker-compose.prod.yml up --build -d
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000/api/v1` | URL pointing to the FastAPI backend |
+| `NEXT_API_URL` | `http://localhost:8000/api/v1` | URL pointing to the FastAPI backend |
 
 ---
 
